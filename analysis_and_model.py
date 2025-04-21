@@ -31,7 +31,8 @@ def analysis_and_model_page():
         data = data.drop(columns=['Product ID', 'UDI', 'TWF', 'HDF', 'PWF', 'OSF', 'RNF'])
 
         # Преобразование категориальной переменной Type в числовую
-        data['Type'] = LabelEncoder().fit_transform(data['Type'])
+        label_e = LabelEncoder()
+        data['Type'] = label_e.fit_transform(data['Type'])
 
         # Удаление пропусков
         data = data.dropna()
@@ -44,6 +45,8 @@ def analysis_and_model_page():
         # Определяем X и y
         X = data.drop('Machine failure', axis=1)
         y = data['Machine failure']
+
+        feature_names = X.columns.tolist()
 
         # -------------------------------------------------------------------------------------
         # ------------------РАЗДЕЛЕНИЕ НА ТРЕНИРОВОЧНЫЕ И ТЕСТОВЫЕ ДАННЫЕ----------------------
@@ -229,13 +232,21 @@ def analysis_and_model_page():
         if submitted:
             # Преобразование введенных данных
             input_df = pd.DataFrame({
-                "Type": [LabelEncoder().fit_transform([type])[0]],
+                "Type": [type],
                 'Air temperature [K]': [air_temp],
                 'Process temperature [K]': [process_temp],
                 'Rotational speed [rpm]': [rotational_speed],
                 'Torque [Nm]': [torque],
                 'Tool wear [min]': [tool_wear]
             })
+
+            input_df = input_df.reindex(columns=feature_names)
+
+            input_df['Type'] = label_e.transform(input_df['Type'])
+
+            # Стандартизация данных для предсказания
+            input_df_st = standard.transform(input_df)
+
 
             # -------------------------------------------------------------------------------------
             # ----------------------------------ПРЕДСКАЗАНИЕ---------------------------------------
@@ -244,31 +255,36 @@ def analysis_and_model_page():
             # Создаем список, для того, чтобы произвести проверку на выявление лучшего результата
             accuracy = [accuracy_y, accuracy_rf, accuracy_xgb, accuracy_svc]
 
+            st.write("Классы label_encoder:", label_e.classes_)
+            st.write("Mean и scale scaler’а:", standard.mean_, standard.scale_)
+            st.write("Raw input DF:", input_df)
+            st.write("Scaled input:", input_df_st)
+
             # Проверку по выявлению наилучшего результата
             if max(accuracy) == accuracy_y:
-                prediction = model.predict(input_df)
-                prediction_proba = model.predict_proba(input_df)[:, 1]
+                prediction = model.predict(input_df_st)
+                prediction_proba = model.predict_proba(input_df_st)[:, 1]
 
                 st.write(f"Предсказание LR(0 - без отказа, 1 - отказ): {prediction[0]}")
                 st.write(f"Вероятность отказа: {prediction_proba[0]:.2f}")
 
             if max(accuracy) == accuracy_rf:
-                prediction = rf.predict(input_df)
-                prediction_proba = rf.predict_proba(input_df)[:, 1]
+                prediction = rf.predict(input_df_st)
+                prediction_proba = rf.predict_proba(input_df_st)[:, 1]
 
                 st.write(f"Предсказание RF(0 - без отказа, 1 - отказ): {prediction[0]}")
                 st.write(f"Вероятность отказа: {prediction_proba[0]:.2f}")
 
             if max(accuracy) == accuracy_xgb:
-                prediction = xgb.predict(input_df)
-                prediction_proba = xgb.predict_proba(input_df)[:, 1]
+                prediction = xgb.predict(input_df_st)
+                prediction_proba = xgb.predict_proba(input_df_st)[:, 1]
 
                 st.write(f"Предсказание XGB(0 - без отказа, 1 - отказ): {prediction[0]}")
                 st.write(f"Вероятность отказа: {prediction_proba[0]:.2f}")
 
             if max(accuracy) == accuracy_svc:
-                prediction = svc.predict(input_df)
-                prediction_proba = svc.predict_proba(input_df)[:, 1]
+                prediction = svc.predict(input_df_st)
+                prediction_proba = svc.predict_proba(input_df_st)[:, 1]
 
                 st.write(f"Предсказание SVC(0 - без отказа, 1 - отказ): {prediction[0]}")
                 st.write(f"Вероятность отказа: {prediction_proba[0]:.2f}")
