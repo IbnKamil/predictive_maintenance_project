@@ -31,5 +31,4 @@
 - `README.md`: Описание проекта.
 
 ## Видео-демонстрация
-[Ссылка на видео](video/demo.mp4) или встроенное видео ниже:
-<video src="video/demo.mp4" controls width="100%"></video> 
+[Ссылка на видео](https://github.com/IbnKamil/predictive_maintenance_project/blob/main/video/0421_.mp4)
