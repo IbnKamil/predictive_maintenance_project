@@ -122,9 +122,9 @@ def analysis_and_model_page():
         st.text(classification_rep_rf)
 
         # ROC-кривая и AUC
-        y_proba = model.predict_proba(X_test_st)[:, 1]
-        fpr, tpr, _ = roc_curve(y_test, y_proba)
-        auc_score = roc_auc_score(y_test, y_proba)
+        rf_proba = rf.predict_proba(X_test_st)[:, 1]
+        fpr, tpr, _ = roc_curve(y_test, rf_proba)
+        auc_score = roc_auc_score(y_test, rf_proba)
         fig2, ax2 = plt.subplots()
         ax2.plot(fpr, tpr, label=f'AUC = {auc_score:.2f}')
         ax2.plot([0, 1], [0, 1], linestyle='--')
@@ -160,9 +160,9 @@ def analysis_and_model_page():
         st.text(classification_rep_xgb)
 
         # ROC-кривая и AUC
-        y_proba = model.predict_proba(X_test_st)[:, 1]
-        fpr, tpr, _ = roc_curve(y_test, y_proba)
-        auc_score = roc_auc_score(y_test, y_proba)
+        xgb_proba = xgb.predict_proba(X_test_st)[:, 1]
+        fpr, tpr, _ = roc_curve(y_test, xgb_proba)
+        auc_score = roc_auc_score(y_test, xgb_proba)
         fig2, ax2 = plt.subplots()
         ax2.plot(fpr, tpr, label=f'AUC = {auc_score:.2f}')
         ax2.plot([0, 1], [0, 1], linestyle='--')
@@ -176,7 +176,7 @@ def analysis_and_model_page():
         # -------------------------------МЕТОД ОПОРНЫХ ВЕКТОРОВ--------------------------------
         # -------------------------------------------------------------------------------------
 
-        svc = SVC()
+        svc = SVC(probability=True)
         svc.fit(X_train_st, y_train)
         pred_svc = svc.predict(X_test_st)
 
@@ -198,9 +198,9 @@ def analysis_and_model_page():
         st.text(classification_rep_svc)
 
         # ROC-кривая и AUC
-        y_proba = model.predict_proba(X_test_st)[:, 1]
-        fpr, tpr, _ = roc_curve(y_test, y_proba)
-        auc_score = roc_auc_score(y_test, y_proba)
+        svc_proba = svc.predict_proba(X_test_st)[:, 1]
+        fpr, tpr, _ = roc_curve(y_test, svc_proba)
+        auc_score = roc_auc_score(y_test, svc_proba)
         fig2, ax2 = plt.subplots()
         ax2.plot(fpr, tpr, label=f'AUC = {auc_score:.2f}')
         ax2.plot([0, 1], [0, 1], linestyle='--')
