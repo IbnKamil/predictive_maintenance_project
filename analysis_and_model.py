@@ -255,11 +255,6 @@ def analysis_and_model_page():
             # Создаем список, для того, чтобы произвести проверку на выявление лучшего результата
             accuracy = [accuracy_y, accuracy_rf, accuracy_xgb, accuracy_svc]
 
-            st.write("Классы label_encoder:", label_e.classes_)
-            st.write("Mean и scale scaler’а:", standard.mean_, standard.scale_)
-            st.write("Raw input DF:", input_df)
-            st.write("Scaled input:", input_df_st)
-
             # Проверку по выявлению наилучшего результата
             if max(accuracy) == accuracy_y:
                 prediction = model.predict(input_df_st)
